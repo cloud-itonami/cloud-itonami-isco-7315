@@ -1,0 +1,44 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a glass-workshop scheduling/logistics
+;; coordination robot handles crew scheduling, materials-usage records and
+;; glass-materials supply orders for a glass-making, cutting, grinding and
+;; finishing crew (ISCO 7315). Its physical work: moving an A-frame rack of
+;; tall glass sheets across the shop (tip-over is the hazard), setting a sheet
+;; onto the cutting table, and heating a blank in the fusing kiln.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-7315"
+ :cases
+ [{:id :glass-rack-across-shop
+   :kind :transport
+   :procedure "tug moves an A-frame rack of tall float-glass sheets from the store to the cutting table"
+   :params {:mass-kg 150.0 :distance-m 25.0 :v-max-mps 0.6 :a-max-mps2 0.4
+            :brake-decel-mps2 0.6 :drive-force-n 600.0 :crr 0.02
+            :cog-height-m 0.35 :support-half-length-m 0.40 :payload-cog-height-m 1.10
+            :max-time-s 1200.0}
+   :sweep {:param :payload-kg :values [50.0 100.0 200.0 400.0 700.0]}
+   :quantity :min-tipover-margin
+   :limit {:min 0.3 :basis "estimate: keep at least 30 % of the static tip-over moment in reserve while braking with tall sheets aboard"}}
+  {:id :sheet-onto-cutting-table
+   :kind :manipulator
+   :procedure "arm with a vacuum lifter lays a glass sheet from the rack onto the cutting table"
+   :params {:l1-m 0.60 :l2-m 0.50 :m1-kg 8.0 :m2-kg 6.0
+            :from [0.40 0.80] :to [0.85 0.20] :duration-s 3.0 :steps 500}
+   :sweep {:param :payload-kg :values [3.0 6.0 10.0 15.0 25.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 250.0 :basis "estimate: continuous shoulder torque of a 20 kg-payload class collaborative arm at ~1.1 m reach"}
+   :boundary {:lo 1.0 :hi 60.0}}
+  {:id :fusing-blank-heat-through
+   :kind :thermal
+   :procedure "a glass blank on the kiln shelf heats in a 600 C fusing kiln until its underside reaches 560 C"
+   :params {:thickness-m 0.006 :conductivity-w-mk 1.0 :density-kg-m3 2500.0 :specific-heat-j-kgk 840.0
+            :t0-c 20.0 :t-hot-c 600.0 :h-front-w-m2k 30.0 :t-back-ambient-c 600.0 :h-back-w-m2k 5.0
+            :threshold-c 560.0 :duration-s 7200.0 :nodes 7}
+   :sweep {:param :thickness-m :values [0.003 0.006 0.010 0.015 0.019]}
+   :quantity :time-to-threshold-s
+   :limit {:max 3600.0 :basis "estimate: one-hour step budget of the fusing schedule; the shelf side is modelled as weakly coupled (h = 5 W/m2K)"}
+   :boundary {:lo 0.002 :hi 0.04}}]}
