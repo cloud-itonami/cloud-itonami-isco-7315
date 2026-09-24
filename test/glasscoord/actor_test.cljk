@@ -1,5 +1,5 @@
 (ns glasscoord.actor-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [glasscoord.actor :as actor]
             [glasscoord.store :as store]))
 
