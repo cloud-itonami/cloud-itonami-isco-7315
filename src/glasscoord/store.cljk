@@ -1,7 +1,7 @@
 (ns glasscoord.store
   "SSoT for the ISCO-08 7315 glass makers, cutters, grinders and
   finishers glass-workshop scheduling/logistics coordination actor
-  (itonami actor pattern, ADR-2607121000 / CLAUDE.md Actors section;
+  (itonami actor pattern, ADR-2607121000 / AGENTS.md Actors section;
   README's 'Robotics premise' — a glass-workshop scheduling/logistics
   coordination robot performs crew scheduling, task/materials-usage/
   progress record logging and glass-materials supply-order
